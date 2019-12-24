@@ -52,4 +52,37 @@ object ActorCapabilities extends App {
   // forwarding = sending a message with the ORIGINAL sender
   case class WirelessPhoneMessage(content: String, ref: ActorRef)
   alice ! WirelessPhoneMessage("Hi", bob)
+
+
+  /**
+   * Counter actor:
+   * - Increment
+   * - Decrement
+   * - Print
+   */
+
+  // DOMAIN of the counter
+  object Counter {
+    case object Increment
+    case object Decrement
+    case object Print
+  }
+  class Counter extends Actor {
+    import Counter._
+    var count = 0
+    override def receive: Receive = {
+      case Increment => count += 1
+      case Decrement => count -=1
+      case Print => println(s"[counter] This is the count value: $count")
+    }
+  }
+
+  val myCounter = system.actorOf(Props[Counter], "myCounter")
+  for(_ <- 1 to 5) {
+    myCounter ! Counter.Increment
+  }
+  for(_ <- 1 to 3) {
+    myCounter ! Counter.Decrement
+  }
+  myCounter ! Counter.Print
 }
